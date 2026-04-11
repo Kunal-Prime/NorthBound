@@ -1,0 +1,48 @@
+{
+    "name": "ChaosCorp",
+    "founded": 2019,
+    "active": true,
+    "departments": {
+        "engineering": {
+            "head": "Alice",
+            "budget": 500000,
+            "employees": [
+                {
+                    "name": "bob",
+                    "age": 25,
+                    "skills": [
+                        "python",
+                        "SQL"
+                    ]
+                },
+                {
+                    "name": "charlie",
+                    "age": null,
+                    "skills": []
+                }
+            ],
+            "sub_teams": {
+                "backend": [
+                    "bob"
+                ],
+                "frontend": [],
+                "ml": null
+            }
+        },
+        "sales": {
+            "head": null,
+            "budget": 0,
+            "employees": []
+        }
+    },
+    "metadata": {
+        "last_updated": "2024-01-15",
+        "version": 3.1,
+        "tags": [
+            "startup",
+            "messy",
+            "growing"
+        ],
+        "notes": "this data has intentinal gaps and problems"
+    }
+}

@@ -1,0 +1,13 @@
+bad_data = """name,age,salary
+alice,30,50000
+bob,twenty-five,60000
+charlie,35,
+diana,28,not_a_number
+,40,55000
+eve,32,72000
+frank"""
+
+with open("employee.cvs", "w") as f:
+    f.write(bad_data)
+
+print("corrupt CSV file created!!") 
