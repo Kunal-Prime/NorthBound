@@ -19,4 +19,4 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 COPY . .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "systems.smart_timetable_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
