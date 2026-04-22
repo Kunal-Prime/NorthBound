@@ -20,6 +20,26 @@ from models import Base, Timetable, SessionLocal, engine
 from systems.smart_timetable_api.parsers import manual_parser, llm_parser
 from systems.smart_timetable_api.evaluator import evaluate
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# CORS Configuration - Be explicit, not lazy
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8000",
+        "https://your-railway-url.railway.app",
+        "https://api.yourdomain.xyz",           # your custom domain
+        "https://yourusername.github.io"        # GitHub Pages
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Rest of your code...
 # ── APP (MUST BE FIRST BEFORE ANY DECORATOR USE) ──────────
 app = FastAPI(
     title="Smart Timetable Parser API",
