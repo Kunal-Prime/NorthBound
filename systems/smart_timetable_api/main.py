@@ -4,7 +4,7 @@ import os
 import time
 import logging
 from datetime import datetime
-from systems.smart_timetable_api.main import app
+
 
 from fastapi import FastAPI, HTTPException, Request, Depends
 from pydantic import BaseModel, validator
