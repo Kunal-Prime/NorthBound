@@ -38,13 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rest of your code...
-# ── APP (MUST BE FIRST BEFORE ANY DECORATOR USE) ──────────
-app = FastAPI(
-    title="Smart Timetable Parser API",
-    description="Hybrid system using rule-based + LLM parsing with decision logic",
-    version="2.0"
-)
 
 # ── DB SESSION ────────────────────────────────────────────
 def get_db():
