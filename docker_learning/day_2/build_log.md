@@ -8,8 +8,9 @@ The dependencies are installed using the following line in the Dockerfile:
 
 ```bash
 RUN pip install --no-cache-dir -r requirements.txt
+ 
+```
 
---- 
 
 ## 2. Why do we use 0.0.0.0 instead of 127.0.0.1?
 
@@ -32,7 +33,7 @@ This proves that Docker strictly follows requirements.txt and does not assume mi
 
 ---
 
-##4. Why is deleting your venv powerful psychologically?
+## 4. Why is deleting your venv powerful psychologically?
 
 Deleting the local venv shows that:
 

@@ -1,12 +1,8 @@
-# main.py
-
 import os
-import time
 import logging
-from datetime import datetime
-
 
 from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, validator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -20,19 +16,21 @@ from models import Base, Timetable, SessionLocal, engine
 from systems.smart_timetable_api.parsers import manual_parser, llm_parser
 from systems.smart_timetable_api.evaluator import evaluate
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+# ── APP (CREATE ONLY ONCE) ───────────────────────────────
+app = FastAPI(
+    title="Smart Timetable Parser API",
+    description="Hybrid system using rule-based + LLM parsing with decision logic",
+    version="2.0"
+)
 
-# CORS Configuration - Be explicit, not lazy
+# ── CORS ─────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8000",
-        "https://your-railway-url.railway.app",
-        "https://api.yourdomain.xyz",           # your custom domain
-        "https://yourusername.github.io"        # GitHub Pages
+        "http://127.0.0.1:8000",
+        "https://kunal-prime.github.io",
     ],
     allow_credentials=True,
     allow_methods=["*"],
