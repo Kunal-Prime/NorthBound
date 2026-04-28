@@ -24,7 +24,9 @@
         const response = await fetch('https://northbound-1.onrender.com/smart-parse', { // ← CHANGE TO YOUR URL
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ /* your sample payload here */ })
+          body: JSON.stringify({
+            text: sampleText
+        })
         });
 
         const data = await response.json();
