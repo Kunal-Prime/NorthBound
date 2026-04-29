@@ -29,7 +29,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://evil.com",
+        "https://kunal-prime.github.io",
         "https://northbound-1.onrender.com",
     ],
     allow_credentials=True,
