@@ -29,15 +29,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
         "https://kunal-prime.github.io",
+        "https://northbound-1.onrender.com",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
-
 
 # ── DB SESSION ────────────────────────────────────────────
 def get_db():
