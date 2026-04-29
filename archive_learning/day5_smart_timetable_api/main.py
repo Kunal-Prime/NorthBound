@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, validator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -16,7 +17,19 @@ import google.generativeai as genai
 import systems.smart_timetable_api.parsers.manual_parser as manual_parser
 import systems.smart_timetable_api.parsers.llm_parser as llm_parser
 
+
+# ── ENV ───────────────────────────────────────────────────
 load_dotenv()
+
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+APP_ENV = os.getenv("APP_ENV", "production")
+
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY not set")
+
+genai.configure(api_key=api_key)
+
 
 # ── Logging ───────────────────────────────────────────────
 logging.basicConfig(
@@ -35,8 +48,23 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Timetable Parser API",
     description="Converts raw timetable text into structured JSON using manual or LLM parsing",
-    version="1.0"
+    version="1.0",
+    debug=DEBUG
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://kunal-prime.github.io",
+        "https://northbound-1.onrender.com",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -61,10 +89,12 @@ def home():
     return {
         "message": "Timetable Parser API",
         "version": "1.0",
+        "env": APP_ENV,
         "endpoints": {
             "POST /parse-manual": "Rule-based parser",
             "POST /parse-llm": "AI-powered parser",
             "POST /compare": "Run both and compare",
+            "POST /smart-parse": "Frontend-safe parser endpoint",
             "GET /health": "System status"
         }
     }
@@ -74,26 +104,29 @@ def home():
 def health_check():
     health = {
         "status": "ok",
+        "env": APP_ENV,
+        "debug": DEBUG,
         "timestamp": datetime.utcnow().isoformat(),
         "checks": {}
     }
 
     health["checks"]["app"] = "ok"
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    # API key check
     if api_key:
         health["checks"]["api_key"] = "present"
     else:
         health["checks"]["api_key"] = "missing"
         health["status"] = "degraded"
 
+    # LLM check
     try:
         test_model = genai.GenerativeModel("gemini-1.5-flash")
         test_response = test_model.generate_content("Reply with: ok")
         if test_response.text:
             health["checks"]["llm"] = "reachable"
     except Exception as e:
-        health["checks"]["llm"] = f"unreachable"
+        health["checks"]["llm"] = "unreachable"
         health["status"] = "degraded"
         logger.error(f"Health check LLM failed: {e}")
 
@@ -166,7 +199,7 @@ def parse_llm(request: Request, data: TimetableInput):
 @app.post("/compare")
 @limiter.limit("3/minute")
 def compare(request: Request, data: TimetableInput):
-    """Run both parsers. Compare results."""
+    """Run both parsers and compare results"""
 
     logger.info(f"POST /compare | length={len(data.text)}")
 
@@ -210,4 +243,27 @@ def compare(request: Request, data: TimetableInput):
             "error": llm_error,
             "result": llm_result
         }
+    }
+
+
+@app.post("/smart-parse")
+@limiter.limit("10/minute")
+def smart_parse(request: Request, data: TimetableInput):
+    """Primary frontend endpoint"""
+
+    logger.info(f"POST /smart-parse | length={len(data.text)}")
+
+    try:
+        manual_result = manual_parser.parse(data.text)
+    except Exception:
+        manual_result = None
+
+    try:
+        llm_result = llm_parser.parse(data.text)
+    except Exception:
+        llm_result = None
+
+    return {
+        "manual": manual_result,
+        "llm": llm_result
     }

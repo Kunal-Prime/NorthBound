@@ -17,31 +17,41 @@
 
 
   <script>
-  async function callAPI() {
-    const resultEl = document.getElementById('result');
-    resultEl.textContent = "Calling API...";
+    async function callAPI() {
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = "Calling API...";
 
-    const sampleText = `
-Monday 9:00 AM - Math
-Tuesday 11:00 AM - Physics
-Wednesday 2:00 PM - Chemistry
-`;
+      const sampleText = `
+    Monday 9:00 AM - Math
+    Tuesday 11:00 AM - Physics
+    Wednesday 2:00 PM - Chemistry
+    `;
 
-    try {
-      const response = await fetch('https://northbound-1.onrender.com/smart-parse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: sampleText
-        })
-      });
+      try {
+        const response = await fetch("https://northbound-1.onrender.com/smart-parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: sampleText })
+        });
 
-      const data = await response.json();
-      resultEl.textContent = JSON.stringify(data, null, 2);
-    } catch (err) {
-      resultEl.textContent = "ERROR: " + err.message;
+        const raw = await response.text();
+
+        if (!response.ok) {
+          resultEl.textContent = `HTTP ${response.status}\n\n${raw}`;
+          return;
+        }
+
+        try {
+          const data = JSON.parse(raw);
+          resultEl.textContent = JSON.stringify(data, null, 2);
+        } catch {
+          resultEl.textContent = raw;
+        }
+
+      } catch (err) {
+        resultEl.textContent = "FETCH ERROR: " + err.message;
+      }
     }
-  }
-</script>
+  </script>
 </body>
 </html>
