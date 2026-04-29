@@ -5,33 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timetable Rebel</title>
   <style>
-    body { font-family: system-ui; padding: 40px; background: #0f0f0f; color: #0f0; }
-    button { padding: 12px 24px; font-size: 16px; background: #0f0; color: black; border: none; cursor: pointer; }
-    pre { background: #111; padding: 20px; overflow: auto; }
+    body {
+      font-family: system-ui;
+      padding: 40px;
+      background: #0f0f0f;
+      color: #0f0;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #0f0;
+      color: black;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 700px;
+      height: 180px;
+      padding: 12px;
+      font-size: 15px;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      margin-bottom: 20px;
+      resize: vertical;
+    }
+
+    pre {
+      background: #111;
+      padding: 20px;
+      overflow: auto;
+      white-space: pre-wrap;
+      max-width: 900px;
+    }
   </style>
 </head>
 <body>
   <h1>Calling My Live API</h1>
-  <button onclick="callAPI()">Parse Sample Timetable</button>
-  <pre id="result"></pre>
 
+  <textarea id="inputText" placeholder="Paste messy timetable here...">Math Monday 9am
+  Physics Tuesday 11am
+  Chemistry Wednesday 2pm</textarea>
+
+  <br><br>
+
+  <button onclick="callAPI()">Parse Timetable</button>
+
+  <pre id="result"></pre>
 
   <script>
     async function callAPI() {
       const resultEl = document.getElementById('result');
-      resultEl.textContent = "Calling API...";
+      const inputText = document.getElementById('inputText').value.trim();
 
-      const sampleText = `
-    Monday 9:00 AM - Math
-    Tuesday 11:00 AM - Physics
-    Wednesday 2:00 PM - Chemistry
-    `;
+      if (!inputText) {
+        resultEl.textContent = "ERROR: Please enter timetable text.";
+        return;
+      }
+
+      resultEl.textContent = "Calling API...";
 
       try {
         const response = await fetch("https://northbound-1.onrender.com/smart-parse", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: sampleText })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text: inputText
+          })
         });
 
         const raw = await response.text();
